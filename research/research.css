@@ -18,3 +18,14 @@ main{padding-top:38px}h1{font-size:clamp(32px,5vw,62px);font-weight:800;letter-s
 .lab-intro{position:relative;isolation:isolate;overflow:hidden;padding:28px 0 24px;margin-bottom:18px;border-bottom:1px solid #c6d8e6}.lab-intro>p{max-width:680px;margin:10px 0 0}.lab-intro::before{content:attr(data-number);position:absolute;right:10px;top:-50px;font-family:var(--mono);font-size:clamp(110px,20vw,240px);font-weight:800;line-height:1;color:#0877c90b;z-index:-1}.lab-intro::after{content:'';position:absolute;right:0;bottom:0;width:38%;height:60%;background:repeating-linear-gradient(165deg,transparent 0 12px,#0877c910 12px 13px);mask-image:linear-gradient(90deg,transparent,#000);z-index:-1;pointer-events:none}
 .panel{background:rgba(255,255,255,.94);border:1px solid #e1e9ef;box-shadow:0 6px 18px rgba(15,23,42,.045);padding:24px}.panel h2{display:flex;align-items:center;gap:10px}.panel h2::after{content:'';height:1px;flex:1;background:linear-gradient(90deg,#dce7f0,transparent)}.primary,.button.primary{border-radius:50px;padding:10px 18px;box-shadow:0 4px 12px rgba(8,119,201,.13)}button,.button{transition:background .2s var(--ease),box-shadow .2s var(--ease)}canvas{background:linear-gradient(135deg,#fff,#f8fbfe)}.site-note{border-top:1px solid #dce7f0;font-family:var(--mono);font-size:11px;margin-top:36px}
 @media(max-width:1100px){header nav{gap:8px 13px}}@media(max-width:850px){main{padding-top:16px}.lab-intro{padding:16px 0 20px}.lab-intro::before{top:0}.panel{padding:16px}header nav a{flex-shrink:0}}
+
+/* Narrow-view layout: keep long schema names and commands inside their panels.
+   Preserve intentional horizontal scrolling for navigation, tables and code blocks. */
+main,section,article,.grid>*,.layout>*,.two>*{min-width:0}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.panel p,.panel h3,.panel li,.site-note{overflow-wrap:anywhere}
+code{overflow-wrap:anywhere;white-space:normal}
+pre{max-width:100%;min-width:0;overflow-x:auto;white-space:pre}
+input,select,button,.button{max-width:100%}
+header nav{min-width:0;max-width:100%}
+@media(max-width:850px){.grid,.layout,.two,.panel .grid{grid-template-columns:minmax(0,1fr)}}
