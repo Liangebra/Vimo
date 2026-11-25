@@ -37,7 +37,7 @@ def main():
                 page.locator("#play").click()
                 page.wait_for_function("Number(document.querySelector('#frame').value)>0")
                 page.locator("#play").click()
-                page.locator("#frame").fill("0")
+                page.locator("#frame").press("Home")
                 assert "0.000 s" in page.locator("#frame-label").inner_text()
                 with page.expect_download() as download:
                     page.locator("#json").click()
