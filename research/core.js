@@ -40,5 +40,27 @@ globalThis.VimoCore=(function motionCore(){
     return {rows,report:{schema_version:1,frame_count:rows.length,visibility_threshold:threshold,coordinate_system:"image plane, equal x/y units, y down",limitations:"2D projected geometry only; visibility is not calibrated uncertainty; no quality or injury diagnosis.",metrics}};
   }
   function demo(){let out=[headers.join(",")];for(let frame=0;frame<90;frame++){const p=frame*2*Math.PI/30,coords={11:[90,40],12:[110,40],13:[75,65],14:[125,65],15:[80,90],16:[120,90],23:[90,100],24:[110,100],25:[90+15*Math.sin(p),145],26:[110-15*Math.sin(p),145],27:[90+30*Math.sin(p+.8),185],28:[110-30*Math.sin(p+.8),185]};for(const [j,[x,y]] of Object.entries(coords))out.push([frame,frame/30,j,x,y,j==="27"&&frame>=40&&frame<50?.2:1].join(","))}return out.join("\n")}
-  return {keys,parse,angle,analyze,demo};
+  // Each observed landmark may be displaced by at most epsilon in Euclidean image units.
+  // A difference vector therefore changes by at most 2 epsilon. The maximal
+  // direction change for a nonzero vector of length L is asin(2 epsilon / L)
+  // when the perturbation ball excludes the origin.
+  function uncertainty(frame,key,threshold,epsilon){
+    if(!keys.includes(key)||!Number.isFinite(threshold)||threshold<0||threshold>1||!Number.isFinite(epsilon)||epsilon<0)throw Error("Invalid uncertainty parameters");
+    const p=i=>{const a=frame.points.get(i);return a&&a[2]>=threshold?a:null};
+    const directionError=L=>2*epsilon>=L?null:Math.asin(2*epsilon/L)*180/Math.PI;
+    let center,bounds;
+    if(key==="trunk_tilt_deg"){
+      const a=[11,12,23,24].map(p);if(!a.every(Boolean))return null;
+      const dx=(a[0][0]+a[1][0]-a[2][0]-a[3][0])/2,dy=(a[0][1]+a[1][1]-a[2][1]-a[3][1])/2;
+      if(!Math.hypot(dx,dy))return null;
+      center=Math.atan2(Math.abs(dx),-dy)*180/Math.PI;bounds=[directionError(Math.hypot(dx,dy))];
+    }else{
+      const [a,b,c]=joints[key].map(p);center=angle(a,b,c);if(center===null)return null;
+      bounds=[directionError(Math.hypot(a[0]-b[0],a[1]-b[1])),directionError(Math.hypot(c[0]-b[0],c[1]-b[1]))];
+    }
+    if(bounds.includes(null))return {center_deg:center,lower_deg:0,upper_deg:180,nondegeneracy_guaranteed:false};
+    const delta=bounds.reduce((sum,x)=>sum+x,0);
+    return {center_deg:center,lower_deg:Math.max(0,center-delta),upper_deg:Math.min(180,center+delta),nondegeneracy_guaranteed:true};
+  }
+  return {keys,parse,angle,analyze,demo,uncertainty};
 })(); 
