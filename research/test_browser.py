@@ -24,7 +24,7 @@ def main():
             else:
                 raise RuntimeError("local test server did not start")
             with sync_playwright() as p:
-                browser = p.chromium.launch()
+                browser = p.chromium.launch(channel="chrome") if os.environ.get("VIMO_TEST_VIDEO") == "1" else p.chromium.launch()
                 page = browser.new_page(accept_downloads=True)
                 errors = []
                 page.on("pageerror", lambda error: errors.append(str(error)))
@@ -73,6 +73,11 @@ def main():
                 if os.environ.get("VIMO_TEST_VIDEO") == "1":
                     page.locator("#duration").fill("3")
                     page.locator("#fps").fill("5")
+                    print("Media support:", page.evaluate("""() => ({
+                        h264: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'),
+                        hevc: document.createElement('video').canPlayType('video/mp4; codecs="hvc1"'),
+                        webm: document.createElement('video').canPlayType('video/webm; codecs="vp8"')
+                    })"""))
                     page.locator("#start").click()
                     page.wait_for_function("document.querySelector('#download').disabled === false || document.querySelector('#status').textContent.startsWith('未完成')", timeout=180000)
                     status = page.locator("#status").inner_text()
@@ -85,6 +90,10 @@ def main():
                         rows = list(csv.DictReader(f))
                     assert rows and any(row["x"] != "" for row in rows), "No human landmark detected in demo video"
                     print("Real video extraction produced", len(rows), "landmark rows")
+                    page.locator("#toWorkbench").click()
+                    page.wait_for_url("**/research/index.html?transfer=pose")
+                    assert "视频骨骼提取结果" in page.locator("#status").inner_text()
+                    assert page.locator("#summary tr").count() == 7
                 screenshots = ROOT / "research" / ".test-output"
                 screenshots.mkdir(exist_ok=True)
                 for width in (390, 768, 1440):
@@ -111,6 +120,12 @@ def main():
                     page.goto(URL + "/index.html", wait_until="domcontentloaded")
                     assert "Vimo Research" in page.title()
                     assert page.locator(".research-route-grid a").count() == 6
+                    assert page.locator("#hero-screen video").get_attribute("poster")
+                    if width == 390:
+                        stage = page.locator(".stage-visual").bounding_box()
+                        copy = page.locator(".stage-copy").bounding_box()
+                        assert stage["y"] >= copy["y"] + copy["height"] - 2, (stage, copy)
+                        assert stage["width"] >= width * .8, stage
                     page.screenshot(path=str(screenshots / f"portal-{width}.png"), full_page=False, animations="disabled")
                     page.locator('.research-route-grid a[href="research/dynamics.html"]').click()
                     page.wait_for_url("**/research/dynamics.html")
