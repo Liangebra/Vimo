@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vimo 智能跑步门户</title>
+    <title>Vimo Research · 运动科研平台</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
         :root {
@@ -1735,6 +1735,32 @@
             }
         }
     </style>
+<style>
+/* Keep legacy prototypes in source for migration; do not expose simulated community/auth/chat as live services. */
+#login,#forum,#chat,.a-separator:has(+ #login),.a-separator:has(+ #forum),.a-separator:has(+ #chat){display:none!important}
+nav .nav-links a{text-decoration:none}
+/* Keep the original cinematic stage, but stack copy and screen on narrow views. */
+@media(max-width:850px){
+  .stage{grid-template-columns:minmax(0,1fr);gap:2rem;min-height:0;padding-top:1.5rem}
+  .stage-copy,.stage-visual{min-width:0;transform:none!important}
+  .stage-copy .hero-title{font-size:clamp(2.6rem,10vw,3.6rem);line-height:1.12;margin-bottom:1rem}
+  .stage-copy .hero-sub{font-size:1rem;max-width:100%!important}
+  .stage-copy .hero-actions{gap:.65rem;margin-top:1.3rem}
+  .stage-copy .hero-actions .btn-flat{font-size:.95rem;padding:.8rem 1.15rem;white-space:nowrap}
+  .stage-visual{width:100%;max-width:620px;margin:0 auto}
+  .stage-visual .video-screen{transform:none!important;box-shadow:0 16px 38px rgba(15,23,42,.19);aspect-ratio:16/10.4}
+  .stage-ico.ic-a{left:4px;top:-16px}.stage-ico.ic-b{right:4px;bottom:-16px}
+}
+.video-screen{background:#0b1220 url("使用图片/61f8c337ddb1807e10758cce7b75fbb9.jpg") center/cover no-repeat}
+
+.research-route{padding-top:2rem;padding-bottom:4rem}.research-route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:2rem}.research-route-grid a{display:flex;flex-direction:column;gap:.7rem;min-width:0;border-top:1px solid #bcd1e1;border-bottom:1px solid #e3ebf2;padding:1.4rem .9rem;color:var(--text-main);text-decoration:none;transition:background .25s var(--ease),transform .25s var(--ease)}.research-route-grid a:hover{background:rgba(255,255,255,.85);transform:translateY(-3px)}.research-route-grid small{font-family:var(--mono);font-size:.7rem;color:var(--primary);letter-spacing:.12em}.research-route-grid strong{font-size:1.25rem}.research-route-grid span{font-size:.85rem;color:var(--text-second)}@media(max-width:768px){.research-route-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.research-route-grid{grid-template-columns:1fr}}
+
+nav .nav-links{gap:clamp(8px,1.1vw,20px);flex-wrap:wrap;justify-content:center}
+nav .nav-trigger{white-space:nowrap;font-size:clamp(.8rem,1vw,.95rem)}
+@media(max-width:1100px){body>nav{padding:12px 4%;flex-wrap:wrap;gap:10px}body>nav .nav-links{order:3;width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding:3px 0 7px}body>nav .logo{margin-right:auto}}
+@media(max-width:480px){body>nav{position:relative}body>nav .nav-links{gap:15px}body>nav .btn-flat{padding:7px 12px!important}}
+
+</style>
 </head>
 
 <body>
@@ -1748,102 +1774,12 @@
             Vimo
         </a>
         <div class="nav-links">
-            <!-- 应用下载 -->
-            <div class="nav-item">
-                <a class="nav-trigger active" onclick="showSection('download')" id="nav-download">应用下载
-                    <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </a>
-                <div class="dd-panel">
-                    <div class="dd-label"><i>01</i>应用下载</div>
-                    <button class="dd-item" onclick="showSection('download')">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><polyline points="7 10 12 15 17 10"></polyline><path d="M5 21h14"></path></svg>
-                        <span class="dd-txt">下载 Android APK (v17)<small>本地 AI 姿态分析，无需联网</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                    <button class="dd-item" onclick="openDemoVideo()">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
-                        <span class="dd-txt">观看效果演示<small>看 Vimo 如何实时捕捉你的跑姿</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                    <div class="dd-divider"></div>
-                    <button class="dd-item" onclick="showSection('forum')">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
-                        <span class="dd-txt">版本动态<small>查看 v17 更新与跑者反馈</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                </div>
-            </div>
-            <!-- 社区论坛 -->
-            <div class="nav-item">
-                <a class="nav-trigger" onclick="showSection('forum')" id="nav-forum">社区论坛
-                    <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </a>
-                <div class="dd-panel">
-                    <div class="dd-label"><i>03</i>社区论坛</div>
-                    <button class="dd-item" onclick="showSection('forum'); setTimeout(function(){ toggleEditor(); }, 450);">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-                        <span class="dd-txt">分享我的跑姿分析<small>发帖与其他跑者交流</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                    <button class="dd-item" onclick="showSection('forum')">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16"></path><path d="M4 15h16"></path><path d="M10 3 8 21"></path><path d="M16 3l-2 18"></path></svg>
-                        <span class="dd-txt">浏览话题<small>跑姿分析 · 伤病康复 · 装备评测</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                </div>
-            </div>
-            <!-- AI 对话 -->
-            <div class="nav-item">
-                <a class="nav-trigger" onclick="showSection('chat')" id="nav-chat">AI 对话
-                    <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </a>
-                <div class="dd-panel">
-                    <div class="dd-label"><i>04</i>AI 对话</div>
-                    <button class="dd-item" onclick="showSection('chat')">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                        <span class="dd-txt">向 AI 教练提问<small>跑姿优化 · 伤病预防 · 训练计划</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                    <button class="dd-item" onclick="showSection('chat')">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
-                        <span class="dd-txt">热门检索<small>足底筋膜炎 · 步频训练 · 跑前热身</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                </div>
-            </div>
-            <!-- 登录 -->
-            <div class="nav-item">
-                <a class="nav-trigger" onclick="showSection('login')" id="nav-login">登录
-                    <svg class="nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </a>
-                <div class="dd-panel">
-                    <div class="dd-label"><i>02</i>登录 / 注册</div>
-                    <button class="dd-item" onclick="showSection('login'); setLoginMode('phone');">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"></rect><line x1="10" y1="18" x2="14" y2="18"></line></svg>
-                        <span class="dd-txt">手机号登录<small>短信验证码，快捷安全</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                    <button class="dd-item" onclick="showSection('login'); setLoginMode('email');">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"></rect><path d="m2 7 10 7L22 7"></path></svg>
-                        <span class="dd-txt">邮箱登录<small>输入邮箱与密码</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                    <button class="dd-item" onclick="showSection('login'); setLoginMode('wechat');">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3C5.9 3 3 5.6 3 8.8c0 1.9 1 3.5 2.6 4.6L5 16l2.9-1.5c.5.1 1 .2 1.6.2 3.6 0 6.5-2.6 6.5-5.9S13.1 3 9.5 3z"></path><path d="M21 14.4c0-2.6-2.5-4.8-5.6-4.8s-5.6 2.1-5.6 4.8 2.5 4.8 5.6 4.8c.5 0 1-.1 1.5-.2L19 20.5l-.6-1.8c1.5-1 2.6-2.5 2.6-4.3z"></path></svg>
-                        <span class="dd-txt">微信登录<small>扫码一键授权</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                    <div class="dd-divider"></div>
-                    <button class="dd-item" onclick="showSection('login')">
-                        <svg class="dd-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M22 11h-6"></path></svg>
-                        <span class="dd-txt">快速注册<small>还没有账号？立即创建</small></span>
-                        <svg class="dd-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                    </button>
-                </div>
-            </div>
+            <a class="nav-trigger active" href="#download">项目介绍</a>
+            <a class="nav-trigger" href="research/index.html">运动工作台</a><a class="nav-trigger" href="research/video.html">视频提取</a><a class="nav-trigger" href="research/experiments.html">时序实验室</a><a class="nav-trigger" href="research/dynamics.html">动力系统</a><a class="nav-trigger" href="research/validation.html">数据验证</a><a class="nav-trigger" href="research/resources.html">科研资源</a>
+            <a class="nav-trigger" href="https://github.com/Liangebra/Vimo">科研代码 / TUI</a>
+            <a class="nav-trigger" href="#reel">实地调研</a>
         </div>
-        <button class="btn-flat btn-primary" onclick="showSection('login')"
-            style="padding: 0.6rem 1.2rem; font-size: 0.9rem; border-radius: 50px;">个人中心</button>
+        <a class="btn-flat btn-primary" href="research/index.html" style="padding:0.6rem 1.2rem;font-size:0.9rem;border-radius:50px;text-decoration:none;">开始分析</a>
     </nav>
 
     <!-- Download Section (Default) -->
@@ -1855,14 +1791,14 @@
             <div class="stage-copy">
                 <span class="string-line sl-1" aria-hidden="true"></span>
                 <h1 class="hero-title tl-split" data-reveal>
-                    <span class="tl"><span class="tl-inner">数据驱动</span></span>
-                    <span class="tl"><span class="tl-inner">科学跑步</span></span>
+                    <span class="tl"><span class="tl-inner">运动科学</span></span>
+                    <span class="tl"><span class="tl-inner">数据可证</span></span>
                 </h1>
                 <p class="hero-sub" data-reveal style="--rd: 0.15s; max-width: 460px;">
-                    利用移动端摄像头实时捕捉姿态，提供基于生物力学的精准建议。
+                    面向运动科学研究的本地分析平台。导入骨骼时序、探索运动几何、检查观测质量，并导出可复用的科研数据。
                 </p>
                 <div class="hero-actions" data-reveal style="--rd: 0.3s;">
-                    <button class="btn-flat btn-primary">下载 Android APK (v17)</button>
+                    <a class="btn-flat btn-primary" href="research/index.html" style="text-decoration:none;">进入科研工作台</a>
                     <button class="btn-flat btn-outline" onclick="openDemoVideo()">观看效果演示</button>
                 </div>
             </div>
@@ -1874,7 +1810,7 @@
                 <div class="tilt-wrap" id="hero-tilt">
                     <div class="video-screen" id="hero-screen">
                         <div class="screen-ring"></div>
-                        <video src="使用图片/4f8f409a0db4f6a2072a851b1b4244fe.mp4" muted loop autoplay playsinline preload="metadata"></video>
+                        <video src="使用图片/4f8f409a0db4f6a2072a851b1b4244fe.mp4" poster="使用图片/61f8c337ddb1807e10758cce7b75fbb9.jpg" muted loop autoplay playsinline preload="metadata"></video>
                         <span class="video-badge"><i>●</i> VIMO · 实景演示</span>
                         <button class="play-hint" onclick="openDemoVideo()" aria-label="播放演示视频">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"></path></svg>
@@ -1907,19 +1843,33 @@
         <div class="grid feat-zone" data-reveal>
             <div class="feat-card">
                 <span class="feat-no">01</span>
-                <h3 style="color: var(--primary);">极速 AI 推理</h3>
-                <p>在本地直接运行 MediaPipe，无需上传数据，保护隐私的同时保持实时动态分析。</p>
+                <h3 style="color: var(--primary);">本地数据分析</h3>
+                <p>浏览器直接读取骨骼 CSV，无需账户或自建服务器；文件不会被上传。</p>
             </div>
             <div class="feat-card">
                 <span class="feat-no">02</span>
-                <h3 style="color: var(--primary);">骨架实时映射</h3>
-                <p>33个关键点高频采集，将复杂的生物力学数据转化为直观的骨骼动画反馈。</p>
+                <h3 style="color: var(--primary);">可解释的运动几何</h3>
+                <p>浏览二维骨骼投影、关节角度时序和有效帧覆盖率，明确测量边界。</p>
             </div>
             <div class="feat-card">
                 <span class="feat-no">03</span>
-                <h3 style="color: var(--primary);">个性化运动建议</h3>
-                <p>根据您的步频与倾角，AI 教练提供量身定制的训练建议，助力跑姿进化。</p>
+                <h3 style="color: var(--primary);">可复现的科研流程</h3>
+                <p>导出逐帧 CSV 与 JSON 报告，并通过 Python CLI / TUI 进行本地分析。</p>
             </div>
+        </div>
+    </section>
+
+    <section class="section research-route" aria-label="科研实验路线">
+        <span class="sec-label"><span class="sec-no">02</span>Research Path<span class="sec-line"></span></span>
+        <h2 style="font-size:clamp(2rem,4vw,3.3rem);letter-spacing:-.045em;margin:1rem 0 .6rem">从运动观测<br>到数学实验</h2>
+        <p style="max-width:40rem;color:var(--text-second)">一条连续的科研路线：从视频生成骨骼数据，探索几何与时序，最后使用独立参考进行验证。</p>
+        <div class="research-route-grid">
+          <a href="research/video.html"><small>01 / ACQUIRE</small><strong>视频提取</strong><span>在浏览器生成骨骼时序 ↗</span></a>
+          <a href="research/index.html"><small>02 / GEOMETRY</small><strong>运动工作台</strong><span>关节角度、误差传播 ↗</span></a>
+          <a href="research/experiments.html"><small>03 / SIGNAL</small><strong>时序实验室</strong><span>滤波、频谱、动作对齐 ↗</span></a>
+          <a href="research/dynamics.html"><small>04 / DYNAMICS</small><strong>动力系统</strong><span>相空间、截面与复现结构 ↗</span></a>
+          <a href="research/validation.html"><small>05 / VALIDATE</small><strong>参考验证</strong><span>独立测量与误差比较 ↗</span></a>
+          <a href="research/resources.html"><small>06 / METHODS</small><strong>科研资源</strong><span>数据、数学方法与开发工具 ↗</span></a>
         </div>
     </section>
 
@@ -2237,42 +2187,23 @@
                     <img src="icon/logo_web.png" alt="Vimo logo" style="height: 22px; width: auto;">
                     Vimo
                 </div>
-                <p>用 AI 重新定义跑步。摄像头实时捕捉姿态，让每一次落步都有数据可依。</p>
+                <p>本地化、可解释、可复现的人体运动分析。</p>
             </div>
 
             <div class="footer-cols">
-                <div>
-                    <h5>产品</h5>
-                    <a href="#">下载 Android APK</a>
-                    <a href="#" onclick="event.preventDefault(); openDemoVideo();">观看效果演示</a>
-                    <a href="#">版本记录</a>
-                </div>
-                <div>
-                    <h5>社区</h5>
-                    <a href="#">交流平台</a>
-                    <a href="#">AI 教练</a>
-                    <a href="#">跑姿分析</a>
-                </div>
-                <div>
-                    <h5>支持</h5>
-                    <a href="#">帮助中心</a>
-                    <a href="#">隐私政策</a>
-                    <a href="#">联系我们</a>
-                </div>
+                <div><h5>科研工具</h5><a href="research/index.html">运动分析工作台</a><a href="research/video.html">视频骨骼提取（实验）</a><a href="research/experiments.html">时序实验室</a><a href="research/dynamics.html">动力系统实验室</a><a href="research/resources.html">科研资源</a><a href="https://github.com/Liangebra/Vimo">CLI / TUI 与代码</a></div>
+                <div><h5>项目</h5><a href="#download">项目介绍</a><a href="#reel">实地调研</a><a href="#" onclick="event.preventDefault(); openDemoVideo();">观看效果演示</a></div>
+                <div><h5>研究边界</h5><a href="research/index.html">数据规范与测量限制</a><a href="https://github.com/Liangebra/Vimo/issues">提交反馈</a></div>
             </div>
 
             <div class="footer-social">
-                <a href="#" class="social-btn" title="微信社区" aria-label="微信社区" style="display: inline-flex; align-items: center; justify-content: center;">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.3 8.9 8.9 0 0 1-3.2-.6L3 21l1.9-5.2a8.2 8.2 0 0 1-1.4-4.8A8.38 8.38 0 0 1 12 2.5a8.38 8.38 0 0 1 9 9z"></path>
-                    </svg>
-                </a>
-                <a href="#" class="social-btn" title="演示视频" aria-label="演示视频" style="display: inline-flex; align-items: center; justify-content: center;">
+                
+                <a href="#" onclick="event.preventDefault();openDemoVideo()" class="social-btn" title="演示视频" aria-label="演示视频" style="display: inline-flex; align-items: center; justify-content: center;">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                 </a>
-                <a href="#" class="social-btn" title="GitHub" aria-label="GitHub" style="display: inline-flex; align-items: center; justify-content: center;">
+                <a href="https://github.com/Liangebra/Vimo" class="social-btn" title="GitHub" aria-label="GitHub" style="display: inline-flex; align-items: center; justify-content: center;">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                     </svg>
@@ -2282,7 +2213,7 @@
 
         <div class="footer-bottom">
             <span>© 2026 Vimo 智能实验室. 保持热爱，科学奔跑。</span>
-            <span class="mono-tag">VIMO · EST. 2026 · v17</span>
+            <span class="mono-tag">VIMO RESEARCH · EST. 2026</span>
         </div>
     </footer>
 
@@ -2328,7 +2259,7 @@
             if (!modal) return;
             modal.classList.add('open');
             var v = modal.querySelector('video');
-            if (v) v.play();
+            if (v) v.play().catch(() => { /* native controls remain available */ });
         }
 
         // Hero screen 3D tilt — mouse-follow rotateY/rotateX (wodniack large-screen feel)
@@ -3222,7 +3153,7 @@ function appendComment(name, color, time, text) {
             <button class="modal-close" onclick="closeDemoVideo()" aria-label="关闭演示视频">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
             </button>
-            <video src="使用图片/4f8f409a0db4f6a2072a851b1b4244fe.mp4" controls playsinline preload="metadata"></video>
+            <video src="使用图片/4f8f409a0db4f6a2072a851b1b4244fe.mp4" poster="使用图片/61f8c337ddb1807e10758cce7b75fbb9.jpg" controls playsinline preload="metadata"></video>
         </div>
     </div>
 
