@@ -1,0 +1,29 @@
+name: Vimo research checks
+on:
+  pull_request:
+  push:
+    branches: [main, feat/research-toolkit-tui]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python -m unittest discover -s research -v
+      - run: node research/test_web.cjs
+      - run: python -m pip install playwright==1.51.0
+      - run: python -m playwright install --with-deps chromium
+      - run: python research/test_browser.py
+      - name: Verify real demo video extraction
+        run: python research/test_browser.py
+        env:
+          VIMO_TEST_VIDEO: "1"
