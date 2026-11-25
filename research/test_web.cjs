@@ -35,4 +35,12 @@ assert.equal(C.uncertainty(frame,"left_knee_deg",.5,0).lower_deg,90);
 assert.equal(C.uncertainty(frame,"left_knee_deg",.5,5).nondegeneracy_guaranteed,false);
 assert.equal(C.uncertainty({points:new Map()},"left_knee_deg",.5,1),null);
 for(let i=0;i<1000;i++){const points=new Map([...frame.points].map(([j,p],k)=>{const t=i*2.399+k*1.1;return [j,[p[0]+Math.cos(t),p[1]+Math.sin(t),1]]}));const a=C.angle(...[23,25,27].map(j=>points.get(j)));assert.ok(a>=bound.lower_deg-1e-9&&a<=bound.upper_deg+1e-9)}
+require("./dynamics.js");
+const dyn=globalThis.VimoDynamics, wave=Array.from({length:241},(_,i)=>90+20*Math.sin(2*Math.PI*i/30));
+const phase=dyn.phase(wave,1/30,7,90);
+assert.ok(Math.abs(phase.mean_period_s-1)<1e-10);
+assert.ok(phase.period_cv<1e-10);
+assert.equal(dyn.recurrence(Array(20).fill(90),2,0).recurrence_rate,1);
+assert.equal(dyn.uniform([{frame:0,time_s:0,k:1},...Array.from({length:10},(_,i)=>({frame:i+2,time_s:(i+2)/30,k:i}))],"k").first_frame,2);
+assert.throws(()=>dyn.phase(wave,1/30,0,90));
 console.log("Vimo web core checks passed");
