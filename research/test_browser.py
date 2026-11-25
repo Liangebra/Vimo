@@ -93,11 +93,27 @@ def main():
                         page.goto(URL + "/research/" + route)
                         assert page.locator('nav a[aria-current="page"]').count() == 1
                         assert page.locator('nav a[aria-current="page"]').get_attribute("href") == route
-                        assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 2"), (width, route)
                         if route in ("index.html", "experiments.html", "dynamics.html", "validation.html"):
                             page.locator("#demo").click()
                         if width in (390, 1440):
                             page.screenshot(path=str(screenshots / f"{route[:-5]}-{width}.png"), full_page=True)
+                        overflow = page.evaluate("""() => ({
+                            width: document.documentElement.scrollWidth,
+                            viewport: innerWidth,
+                            elements: Array.from(document.querySelectorAll('main *')).filter(e =>
+                                e.getBoundingClientRect().right > innerWidth + 2 &&
+                                !e.closest('pre, .scroll, canvas')
+                            ).slice(0, 8).map(e => [e.tagName, e.className, Math.round(e.getBoundingClientRect().right)])
+                        })""")
+                        assert overflow["width"] <= width + 2, (width, route, overflow)
+                for width in (390, 1440):
+                    page.set_viewport_size({"width": width, "height": 900})
+                    page.goto(URL + "/index.html", wait_until="domcontentloaded")
+                    assert "Vimo Research" in page.title()
+                    assert page.locator(".research-route-grid a").count() == 6
+                    page.screenshot(path=str(screenshots / f"portal-{width}.png"), full_page=False, animations="disabled")
+                    page.locator('.research-route-grid a[href="research/dynamics.html"]').click()
+                    page.wait_for_url("**/research/dynamics.html")
                 assert not errors, errors
                 browser.close()
             print("Browser smoke tests passed")
