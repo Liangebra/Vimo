@@ -6,13 +6,14 @@ Vimo 的本地运动科研工具原型。无需自建服务器、账号或远程
 
 直接打开仓库根目录的 index.html，通过“进入科研工作台”进入 research/index.html。也可单独打开 research/index.html。页面使用原生 HTML、CSS 和 JavaScript，无需后端或第三方 CDN。GitHub Pages 可从合并后的 main 分支根目录发布；实际 Pages 配置需维护者确认。
 
-支持导入同一 CSV 数据规范、调节可见度阈值、逐帧骨骼投影、关节角度曲线、覆盖率统计、下载模拟样例和导出 JSON/CSV。模拟样例包含 90 帧，其中左膝指标在默认阈值下有 80 帧有效。运动工作台接受 CSV；实验性 video.html 页面使用 MediaPipe 0.10.21 CDN 运行时和用户提供的本地 .task 模型，把视频转换为 CSV。需要浏览器及网络支持，尚待真实视频验证。旧社区、账号与对话原型暂时从公开入口隐藏。
+支持导入同一 CSV 数据规范、调节可见度阈值、逐帧骨骼投影、关节角度曲线、覆盖率统计、下载模拟样例和导出 JSON/CSV。模拟样例包含 90 帧，其中左膝指标在默认阈值下有 80 帧有效。运动工作台接受 CSV；实验性 video.html 页面使用 MediaPipe 0.10.21 CDN 运行时和官方固定版本 Lite 模型或用户提供的本地 .task 模型，把视频转换为 CSV。需要浏览器及网络支持，尚待真实视频验证。旧社区、账号与对话原型暂时从公开入口隐藏。
 
 ## 科研模块
 
 - research/index.html：运动几何工作台。
 - research/video.html：实验性视频骨骼提取，固定版本运行时从 CDN 加载。
 - research/experiments.html：移动均值 / 中位数、频谱、DTW、合成滤波基准及 JSON 导出。
+- research/validation.html：匹配二维角度定义与时间轴的参考对照、MAE/RMSE/Bias 和成对覆盖率。
 - research/resources.html：公开数据索引、数学定义、验证协议及开发指南。
 - research/core.js、research/signal.js：独立浏览器计算模块。
 
@@ -24,6 +25,30 @@ python -m unittest discover -s research -v
 ```
 
 真实运动数据精度与视频提取链尚未验证；合成基准仅用于算法可复现性检查。
+
+## 真实视频与数据验证
+
+在 research/video.html 选择仓库已有视频，留空模型即可从官方地址加载 Lite v1；也可手动指定 .task。视频仅在用户浏览器处理，外部运行时代码需要联网。演示视频没有标注真值，只能做功能检查。
+
+```sh
+python research/fetch_assets.py model
+python research/fetch_assets.py metadata --accept-data-terms
+python research/fetch_assets.py video --accept-data-terms
+python research/fetch_assets.py optical --accept-data-terms
+```
+
+后两项合计约 1.1 GB。固定 Zenodo 记录 18399031，下载时检查其公布的 MD5；数据置于 local-data，不提交到仓库。使用前确认数据许可及人物隐私。参考验证页面接受 time_s,angle_deg；运动工作台可以导出当前角度为同一格式。光学数据仍须按相机几何、解剖点定义和时间轴转换。
+
+自动化测试：
+
+```sh
+python -m pip install playwright==1.51.0
+python -m playwright install chromium
+python research/test_browser.py
+VIMO_TEST_VIDEO=1 python research/test_browser.py
+```
+
+CI 已配置上述检查；实际运行状态以 Actions 为准。
 
 ## 快速开始
 
