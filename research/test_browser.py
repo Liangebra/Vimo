@@ -32,6 +32,13 @@ def main():
                 page.locator("#demo").click()
                 assert "90" in page.locator("#status").inner_text()
                 assert "88.9%" in page.locator("#summary").inner_text()
+                assert page.locator("#pose").get_attribute("width") == "700"
+                assert page.locator("#play").is_enabled()
+                page.locator("#play").click()
+                page.wait_for_function("Number(document.querySelector('#frame').value)>0")
+                page.locator("#play").click()
+                page.locator("#frame").fill("0")
+                assert "0.000 s" in page.locator("#frame-label").inner_text()
                 with page.expect_download() as download:
                     page.locator("#json").click()
                 assert download.value.suggested_filename == "vimo-report.json"
