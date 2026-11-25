@@ -6,7 +6,24 @@ Vimo 的本地运动科研工具原型。无需自建服务器、账号或远程
 
 直接打开仓库根目录的 index.html，通过“进入科研工作台”进入 research/index.html。也可单独打开 research/index.html。页面使用原生 HTML、CSS 和 JavaScript，无需后端或第三方 CDN。GitHub Pages 可从合并后的 main 分支根目录发布；实际 Pages 配置需维护者确认。
 
-支持导入同一 CSV 数据规范、调节可见度阈值、逐帧骨骼投影、关节角度曲线、覆盖率统计、下载模拟样例和导出 JSON/CSV。模拟样例包含 90 帧，其中左膝指标在默认阈值下有 80 帧有效。当前 Web 不支持直接视频提取。旧社区、账号与对话原型暂时从公开入口隐藏。
+支持导入同一 CSV 数据规范、调节可见度阈值、逐帧骨骼投影、关节角度曲线、覆盖率统计、下载模拟样例和导出 JSON/CSV。模拟样例包含 90 帧，其中左膝指标在默认阈值下有 80 帧有效。运动工作台接受 CSV；实验性 video.html 页面使用 MediaPipe 0.10.21 CDN 运行时和用户提供的本地 .task 模型，把视频转换为 CSV。需要浏览器及网络支持，尚待真实视频验证。旧社区、账号与对话原型暂时从公开入口隐藏。
+
+## 科研模块
+
+- research/index.html：运动几何工作台。
+- research/video.html：实验性视频骨骼提取，固定版本运行时从 CDN 加载。
+- research/experiments.html：移动均值 / 中位数、频谱、DTW、合成滤波基准及 JSON 导出。
+- research/resources.html：公开数据索引、数学定义、验证协议及开发指南。
+- research/core.js、research/signal.js：独立浏览器计算模块。
+
+建议从仓库根目录运行 `python -m http.server 8000`，通过 localhost:8000 访问；也可通过 GitHub Pages 静态托管。无需常驻业务服务器。
+
+```sh
+node research/test_web.cjs
+python -m unittest discover -s research -v
+```
+
+真实运动数据精度与视频提取链尚未验证；合成基准仅用于算法可复现性检查。
 
 ## 快速开始
 
