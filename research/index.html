@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vimo Research | 运动分析工作台</title>
+<style>
+:root{color-scheme:light;--blue:#0877c9;--ink:#17283b;--muted:#5b7186;--line:#dce7f0;--bg:#f4f8fc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,sans-serif}header{background:white;border-bottom:1px solid var(--line);padding:14px max(20px,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}header a{color:var(--ink);text-decoration:none}header img{vertical-align:middle;width:30px;margin-right:9px}main{max-width:1180px;margin:auto;padding:35px 20px}h1{font-size:clamp(28px,4vw,46px);letter-spacing:-.04em;margin:4px 0}h2{font-size:18px;margin:0 0 12px}.eyebrow{color:var(--blue);font-size:12px;font-weight:750;letter-spacing:.13em}p{color:var(--muted);margin:7px 0 18px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}.layout{display:grid;grid-template-columns:1fr 1.8fr;gap:16px;margin:16px 0}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}button,.link{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:9px 14px;background:white;color:var(--ink);text-decoration:none;display:inline-block}.primary{background:var(--blue);color:white;border-color:var(--blue)}button:disabled{opacity:.45;cursor:default}input[type=file]{max-width:100%}label{display:block;font-weight:600;margin:12px 0 4px}select{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;max-width:100%}input[type=range]{width:100%;accent-color:var(--blue)}#status{min-height:24px;overflow-wrap:anywhere}canvas{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fcfeff;display:block}.small{font-size:12px;color:var(--muted)}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}td,th{padding:10px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}td:first-child,th:first-child{text-align:left}th{font-size:12px;color:var(--muted)}.scroll{overflow-x:auto}.tag{font-size:12px;background:#e9f4fc;color:#065e9c;padding:4px 9px;border-radius:20px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}a{color:var(--blue)}@media(max-width:800px){.layout,.two{grid-template-columns:1fr}main{padding:20px 14px}.panel{padding:15px}}
+</style></head>
+<body><header><a href="../index.html"><img src="../icon/logo_web.png" alt=""> <strong>Vimo Research</strong></a><div class="toolbar"><span class="tag">本地计算 · 无需账号</span><a href="https://github.com/Liangebra/Vimo">GitHub ↗</a></div></header>
+<main><div class="eyebrow">MOTION SCIENCE / WORKBENCH</div><h1>人体运动分析工作台</h1><p>导入骨骼时序，检查观测质量，计算可解释的二维关节角度。计算与文件读取均在当前浏览器完成。</p>
+<div class="layout"><section class="panel"><h2>01 / 数据与参数</h2><label for="file">骨骼 CSV 文件（最多 20 MB）</label><input type="file" id="file" accept=".csv,text/csv"><p class="small">字段：frame,time_s,landmark,x,y,visibility；使用同尺度图像坐标，y 向下，MediaPipe 0–32 编号。支持数值 CSV，不支持多行引号字段。</p><div class="toolbar"><button id="demo" class="primary">载入模拟样例</button><button id="sample">下载样例 CSV</button></div><label for="threshold">可见度阈值 <output id="threshold-value">0.50</output></label><input type="range" id="threshold" min="0" max="1" step=".05" value=".5"><p id="status" role="status" aria-live="polite">等待导入数据</p><label for="metric">查看指标</label><select id="metric"></select><label for="frame">浏览帧 <output id="frame-label">—</output></label><input id="frame" type="range" min="0" max="0" value="0" disabled><div class="toolbar"><button id="csv" disabled>导出指标 CSV</button><button id="json" disabled>导出报告 JSON</button></div></section>
+<section class="panel"><h2>02 / 运动观测</h2><div class="two"><div><p class="small">骨骼投影 · 当前帧</p><canvas id="pose" width="440" height="360" aria-label="当前帧骨骼投影"></canvas></div><div><p class="small">指标时间序列 · 缺失处断开</p><canvas id="chart" width="440" height="360" aria-label="所选指标时序曲线"></canvas></div></div><p id="value" class="small"></p></section></div>
+<section class="panel"><h2>03 / 指标与观测覆盖率</h2><div class="scroll"><table><thead><tr><th>指标</th><th>有效帧</th><th>覆盖率</th><th>最小 (°)</th><th>中位数 (°)</th><th>最大 (°)</th></tr></thead><tbody id="summary"></tbody></table></div><p class="small">覆盖率仅指输入记录帧中指标可计算的比例；可见度不是经校准的统计置信度。二维投影角度不等同真实三维关节角，不用于动作质量评分或伤病诊断。</p></section>
+<p><a href="https://github.com/Liangebra/Vimo">科研代码与 Python CLI / TUI</a> · 目前支持 CSV，不直接识别视频。样例由数学公式构造，不代表真实人体数据。</p>
+</main><script>
+const core=(function motionCore(){
+  const joints={left_knee_deg:[23,25,27],right_knee_deg:[24,26,28],left_hip_deg:[11,23,25],right_hip_deg:[12,24,26],left_elbow_deg:[11,13,15],right_elbow_deg:[12,14,16]};
+  const keys=[...Object.keys(joints),"trunk_tilt_deg"];
+  const headers=["frame","time_s","landmark","x","y","visibility"];
+  const num=s=>{if(s.trim()===""||!Number.isFinite(Number(s)))throw Error("数值缺失或无效");return Number(s)};
+  function parse(raw){
+    const lines=raw.replace(/^\uFEFF/,"").trim().split(/\r?\n/), split=s=>s.split(",").map(t=>t.trim().replace(/^"([^"]*)"$/,"$1"));
+    const head=split(lines.shift()||""); if(headers.some(k=>!head.includes(k))||new Set(head).size!==head.length)throw Error("CSV 必须包含 "+headers.join(", "));
+    const frames=new Map();
+    for(let i=0;i<lines.length;i++){
+      if(!lines[i].trim())continue;
+      try{
+        const cols=split(lines[i]);if(cols.length!==head.length)throw Error("列数不匹配");
+        const r=Object.fromEntries(head.map((k,j)=>[k,cols[j]])),f=num(r.frame),t=num(r.time_s),j=num(r.landmark),v=num(r.visibility);
+        if(!Number.isSafeInteger(f)||f<0||t<0||!Number.isInteger(j)||j<0||j>32||v<0||v>1)throw Error("数据超出允许范围");
+        const point=r.x===""&&r.y===""&&v===0?null:[num(r.x),num(r.y),v];
+        if(!frames.has(f))frames.set(f,{frame:f,time_s:t,points:new Map()});
+        const row=frames.get(f);if(row.time_s!==t||row.points.has(j))throw Error("重复关键点或时间戳不一致");
+        row.points.set(j,point);
+      }catch(e){throw Error("第 "+(i+2)+" 行："+e.message)}
+    }
+    const seq=[...frames.values()].sort((a,b)=>a.frame-b.frame);
+    if(!seq.length)throw Error("没有有效帧");
+    if(seq.some((r,i)=>i&&r.time_s<=seq[i-1].time_s))throw Error("帧时间必须严格递增");
+    return seq;
+  }
+  function angle(a,b,c){if(!a||!b||!c)return null;const u=[a[0]-b[0],a[1]-b[1]],v=[c[0]-b[0],c[1]-b[1]],nu=Math.hypot(...u),nv=Math.hypot(...v);if(!nu||!nv)return null;return Math.acos(Math.max(-1,Math.min(1,u[0]/nu*(v[0]/nv)+u[1]/nu*(v[1]/nv))))*180/Math.PI}
+  function analyze(seq,threshold){
+    if(!Number.isFinite(threshold)||threshold<0||threshold>1)throw Error("阈值必须在 0–1 之间");
+    const rows=seq.map(r=>{
+      const p=i=>{const a=r.points.get(i);return a&&a[2]>=threshold?a:null};
+      const result={frame:r.frame,time_s:r.time_s};
+      for(const [k,ids] of Object.entries(joints))result[k]=angle(...ids.map(p));
+      const a=[11,12,23,24].map(p);result.trunk_tilt_deg=null;
+      if(a.every(Boolean)){const dx=(a[0][0]+a[1][0]-a[2][0]-a[3][0])/2,dy=(a[0][1]+a[1][1]-a[2][1]-a[3][1])/2;if(Math.hypot(dx,dy))result.trunk_tilt_deg=Math.atan2(Math.abs(dx),-dy)*180/Math.PI}
+      return result;
+    });
+    const metrics=Object.fromEntries(keys.map(k=>{const a=rows.map(r=>r[k]).filter(v=>v!==null).sort((a,b)=>a-b),n=a.length;return [k,{valid_frames:n,coverage:n/rows.length,minimum:n?a[0]:null,median:n?(a[Math.floor((n-1)/2)]+a[Math.floor(n/2)])/2:null,maximum:n?a[n-1]:null}]}));
+    return {rows,report:{schema_version:1,frame_count:rows.length,visibility_threshold:threshold,coordinate_system:"image plane, equal x/y units, y down",limitations:"2D projected geometry only; visibility is not calibrated uncertainty; no quality or injury diagnosis.",metrics}};
+  }
+  function demo(){let out=[headers.join(",")];for(let frame=0;frame<90;frame++){const p=frame*2*Math.PI/30,coords={11:[90,40],12:[110,40],13:[75,65],14:[125,65],15:[80,90],16:[120,90],23:[90,100],24:[110,100],25:[90+15*Math.sin(p),145],26:[110-15*Math.sin(p),145],27:[90+30*Math.sin(p+.8),185],28:[110-30*Math.sin(p+.8),185]};for(const [j,[x,y]] of Object.entries(coords))out.push([frame,frame/30,j,x,y,j==="27"&&frame>=40&&frame<50?.2:1].join(","))}return out.join("\n")}
+  return {keys,parse,angle,analyze,demo};
+})(); 
+const $=id=>document.getElementById(id), names={left_knee_deg:"左膝角",right_knee_deg:"右膝角",left_hip_deg:"左髋角",right_hip_deg:"右髋角",left_elbow_deg:"左肘角",right_elbow_deg:"右肘角",trunk_tilt_deg:"躯干倾角"};
+for(const k of core.keys){const o=document.createElement("option");o.value=k;o.textContent=names[k];$("metric").append(o)}
+let seq=[],result=null,source="",loadId=0;const fmt=v=>v===null?"—":v.toFixed(2);
+function save(name,body,type){const a=document.createElement("a"),url=URL.createObjectURL(new Blob([body],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function clear(message){seq=[];result=null;$("status").textContent=message;$("summary").replaceChildren();$("frame-label").textContent="—";$("value").textContent="";$("frame").disabled=true;$("csv").disabled=$("json").disabled=true;for(const id of ["pose","chart"]){const c=$(id);c.getContext("2d").clearRect(0,0,c.width,c.height)}}
+function load(raw,label){try{seq=core.parse(raw);source=label;$("frame").max=seq.length-1;$("frame").value=0;$("frame").disabled=false;refresh()}catch(e){clear(e.message)}}
+function refresh(){const threshold=Number($("threshold").value);$("threshold-value").value=threshold.toFixed(2);if(!seq.length)return;result=core.analyze(seq,threshold);$("status").textContent=source+" · "+seq.length+" 帧";$("csv").disabled=$("json").disabled=false;const body=$("summary");body.replaceChildren();for(const k of core.keys){const m=result.report.metrics[k],tr=document.createElement("tr");for(const v of [names[k],m.valid_frames,(m.coverage*100).toFixed(1)+"%",fmt(m.minimum),fmt(m.median),fmt(m.maximum)]){const td=document.createElement("td");td.textContent=v;tr.append(td)}body.append(tr)}draw()}
+function draw(){if(!result)return;const i=Number($("frame").value),k=$("metric").value,r=seq[i],row=result.rows[i],t=Number($("threshold").value);$("frame-label").value=r.frame+" · "+r.time_s.toFixed(3)+" s";$("value").textContent=names[k]+"： "+fmt(row[k])+(row[k]===null?"（观测不足）":"°");const p=$("pose"),pc=p.getContext("2d");pc.clearRect(0,0,p.width,p.height);const points=[...r.points.entries()].filter(([j,v])=>v&&v[2]>=t);if(points.length){const xs=points.map(([j,v])=>v[0]),ys=points.map(([j,v])=>v[1]),xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys),scale=Math.min((p.width-60)/Math.max(1,xmax-xmin),(p.height-60)/Math.max(1,ymax-ymin));const xy=v=>[p.width/2+(v[0]-(xmin+xmax)/2)*scale,p.height/2+(v[1]-(ymin+ymax)/2)*scale],map=new Map(points);pc.strokeStyle="#0877c9";pc.lineWidth=3;for(const [a,b] of [[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,31],[28,32]]){if(!map.has(a)||!map.has(b))continue;pc.beginPath();pc.moveTo(...xy(map.get(a)));pc.lineTo(...xy(map.get(b)));pc.stroke()}pc.fillStyle="#17283b";for(const [,v] of points){pc.beginPath();pc.arc(...xy(v),3.5,0,Math.PI*2);pc.fill()}}else{pc.fillStyle="#5b7186";pc.fillText("No valid landmarks",20,30)}
+const ch=$("chart"),ctx=ch.getContext("2d"),left=44,top=18,w=ch.width-62,h=ch.height-52,lo=seq[0].time_s,hi=seq[seq.length-1].time_s;ctx.clearRect(0,0,ch.width,ch.height);ctx.font="12px system-ui";ctx.lineWidth=1;for(let a=0;a<=180;a+=45){const y=top+h*(1-a/180);ctx.strokeStyle="#dce7f0";ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(left+w,y);ctx.stroke();ctx.fillStyle="#5b7186";ctx.fillText(a+"°",5,y+4)}const x=v=>left+(hi===lo?0:(v-lo)/(hi-lo)*w);ctx.strokeStyle="#0877c9";ctx.lineWidth=2;ctx.beginPath();let active=false;for(const v of result.rows){if(v[k]===null){active=false;continue}const px=x(v.time_s),py=top+h*(1-v[k]/180);if(active)ctx.lineTo(px,py);else ctx.moveTo(px,py);active=true}ctx.stroke();ctx.strokeStyle="#b86f15";ctx.beginPath();ctx.moveTo(x(r.time_s),top);ctx.lineTo(x(r.time_s),top+h);ctx.stroke();ctx.fillStyle="#5b7186";ctx.fillText(lo.toFixed(2)+" s",left,top+h+20);ctx.textAlign="right";ctx.fillText(hi.toFixed(2)+" s",left+w,top+h+20);ctx.textAlign="left"}
+$("file").addEventListener("change",async e=>{const f=e.target.files[0],id=++loadId;if(!f)return;if(f.size>20*1024*1024){clear("文件超过 20 MB");return}try{const raw=await f.text();if(id===loadId)load(raw,f.name)}catch(e){if(id===loadId)clear("读取失败："+e.message)}});
+$("demo").onclick=()=>{++loadId;$("file").value="";load(core.demo(),"人工模拟样例")};$("sample").onclick=()=>save("vimo-demo.csv",core.demo(),"text/csv");$("threshold").oninput=refresh;$("metric").onchange=draw;$("frame").oninput=draw;$("csv").onclick=()=>{const keys=["frame","time_s",...core.keys];save("vimo-metrics.csv",[keys.join(","),...result.rows.map(r=>keys.map(k=>r[k]===null?"":r[k]).join(","))].join("\n"),"text/csv")};$("json").onclick=()=>save("vimo-report.json",JSON.stringify(result.report,null,2),"application/json");
+</script></body></html>
