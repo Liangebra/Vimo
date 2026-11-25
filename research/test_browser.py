@@ -44,6 +44,14 @@ def main():
                 page.locator("#toValidation").click()
                 page.wait_for_url("**/validation.html?transfer=angle")
                 assert "90 条" in page.locator("#predName").inner_text()
+                page.goto(URL + "/research/index.html")
+                page.locator("#demo").click()
+                page.locator("#toDynamics").click()
+                page.wait_for_url("**/dynamics.html?transfer=pose")
+                assert "实验完成" in page.locator("#status").inner_text()
+                page.locator("#demo").click()
+                assert "1.0000 s" in page.locator("#stats").inner_text()
+                assert page.locator("#export").is_enabled()
                 page.goto(URL + "/research/experiments.html")
                 page.locator("#demo").click()
                 assert "实验完成" in page.locator("#status").inner_text()
@@ -77,13 +85,19 @@ def main():
                         rows = list(csv.DictReader(f))
                     assert rows and any(row["x"] != "" for row in rows), "No human landmark detected in demo video"
                     print("Real video extraction produced", len(rows), "landmark rows")
+                screenshots = ROOT / "research" / ".test-output"
+                screenshots.mkdir(exist_ok=True)
                 for width in (390, 768, 1440):
                     page.set_viewport_size({"width": width, "height": 900})
-                    for route in ("index.html", "video.html", "experiments.html", "validation.html", "resources.html"):
+                    for route in ("index.html", "video.html", "experiments.html", "dynamics.html", "validation.html", "resources.html"):
                         page.goto(URL + "/research/" + route)
                         assert page.locator('nav a[aria-current="page"]').count() == 1
                         assert page.locator('nav a[aria-current="page"]').get_attribute("href") == route
                         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 2"), (width, route)
+                        if route in ("index.html", "experiments.html", "dynamics.html", "validation.html"):
+                            page.locator("#demo").click()
+                        if width in (390, 1440):
+                            page.screenshot(path=str(screenshots / f"{route[:-5]}-{width}.png"), full_page=True)
                 assert not errors, errors
                 browser.close()
             print("Browser smoke tests passed")
