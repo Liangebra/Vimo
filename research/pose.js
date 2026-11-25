@@ -33,6 +33,13 @@ globalThis.VimoPose=(function(){
    if([11,12,24,23].every(j=>pts.has(j))){ctx.beginPath();[11,12,24,23].forEach((j,i)=>i?ctx.lineTo(...pts.get(j)):ctx.moveTo(...pts.get(j)));ctx.closePath();ctx.fillStyle="rgba(8,119,201,.065)";ctx.fill()}
    for(const [a,b] of bodyEdges){const major=a>=11&&b<=28;edge(a,b,major?"#c0daed":"#b4cbdd",major?11:3,major?.6:.6)}
    for(const [a,b] of bodyEdges){const right=[12,14,16,24,26,28,18,20,22,30,32].includes(a)&&[12,14,16,24,26,28,18,20,22,30,32].includes(b);edge(a,b,right?"#668da9":"#0877c9",a>=11&&b<=28?3.4:1.5,right?.9:1)}
+   // Group the observed facial landmarks using a translucent graphical ring;
+   // it is not a reconstructed anatomical head outline.
+   const face=[...pts].filter(([j])=>j<=10).map(([,p])=>p);
+   if(face.length>=5&&pts.has(7)&&pts.has(8)){
+     const xs=face.map(p=>p[0]),ys=face.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+     ctx.beginPath();ctx.ellipse((x0+x1)/2,(y0+y1)/2,Math.max(5,(x1-x0)*.66),Math.max(5,(y1-y0)*.95),0,0,2*Math.PI);ctx.fillStyle="rgba(8,119,201,.04)";ctx.fill();ctx.strokeStyle="#a9c6db";ctx.lineWidth=1.3;ctx.stroke();
+   }
    for(const [a,b] of faceEdges)edge(a,b,"#668da9",1.2,.85);
    for(const [j,p] of pts){const major=[11,12,13,14,15,16,23,24,25,26,27,28].includes(j);ctx.beginPath();ctx.arc(p[0],p[1],major?4.2:2.1,0,2*Math.PI);ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle=major?"#0877c9":"#87abc3";ctx.lineWidth=major?1.7:.9;ctx.stroke()}
    if(selected.length===3&&selected.every(j=>pts.has(j))){
@@ -51,15 +58,15 @@ globalThis.VimoPose=(function(){
    const lines=["frame,time_s,landmark,x,y,visibility"],rad=d=>d*Math.PI/180;
    const add=(p,L,a)=>[p[0]+L*Math.sin(rad(a)),p[1]+L*Math.cos(rad(a))];
    for(let f=0;f<90;f++){
-     const t=2*Math.PI*f/30,bob=3*Math.sin(2*t),shift=5*Math.sin(t),P={};
+     const t=2*Math.PI*f/30+Math.PI/2,bob=3*Math.sin(2*t),shift=5*Math.sin(t),P={};
      const hip=[170+shift,167+bob],shoulder=[188+shift,92+bob],head=[199+shift,57+bob];
      // Facial landmarks are present only in this explicitly synthetic sample.
      const headOffsets={0:[12,0],1:[4,-5],2:[7,-6],3:[10,-5],4:[-8,-5],5:[-5,-6],6:[-2,-5],7:[-14,0],8:[14,0],9:[0,10],10:[9,10]};
      for(const [j,[x,y]] of Object.entries(headOffsets))P[j]=[head[0]+x,head[1]+y];
      for(const side of [0,1]){
-       const phase=t+side*Math.PI,sgn=side?1:-1,near=side===0;
+       const phase=t+side*Math.PI,sgn=side?1:-1;
        const H=[hip[0]+sgn*11,hip[1]+sgn*3],S=[shoulder[0]+sgn*19,shoulder[1]+sgn*4];
-       const thigh=18+34*Math.sin(phase),shin=thigh-30-36*Math.max(0,-Math.sin(phase)),upper=-18-37*Math.sin(phase),fore=upper+72+12*Math.cos(phase);
+       const thigh=18+34*Math.sin(phase),shin=thigh-30-36*Math.max(0,-Math.sin(phase)),upper=-18-37*Math.sin(phase),fore=115+15*Math.sin(phase);
        const K=add(H,68,thigh),A=add(K,65,shin),E=add(S,43,upper),W=add(E,40,fore);
        P[11+side]=S;P[13+side]=E;P[15+side]=W;P[23+side]=H;P[25+side]=K;P[27+side]=A;
        P[17+side]=add(W,9,fore-8);P[19+side]=add(W,12,fore+8);P[21+side]=add(W,7,fore+35);
