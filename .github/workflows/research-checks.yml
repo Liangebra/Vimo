@@ -35,3 +35,4 @@ jobs:
           name: research-visual-checks
           path: research/.test-output/
           if-no-files-found: ignore
+          include-hidden-files: true
