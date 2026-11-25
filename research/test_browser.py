@@ -6,12 +6,12 @@ import time
 from pathlib import Path
 from urllib.request import urlopen
 
-from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
 URL = "http://127.0.0.1:8765"
 
 def main():
+    from playwright.sync_api import sync_playwright
     with subprocess.Popen([sys.executable, "-m", "http.server", "8765", "--bind", "127.0.0.1"],
                           cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as server:
         try:
@@ -44,6 +44,11 @@ def main():
                 with page.expect_download() as download:
                     page.locator("#demo").click()
                 assert download.value.suggested_filename == "vimo-demo.csv"
+                page.goto(URL + "/research/validation.html")
+                page.locator("#demo").click()
+                assert "93.44%" in page.locator("#metrics").inner_text()
+                assert "2.000" in page.locator("#metrics").inner_text()
+                assert page.locator("#export").is_enabled()
                 page.goto(URL + "/research/video.html")
                 assert page.locator("#source option").count() == 3
                 page.locator("#source").select_option(index=1)
