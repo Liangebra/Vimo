@@ -28,4 +28,11 @@ assert.equal(report.mae_deg,2);
 assert.equal(report.rmse_deg,2);
 assert.equal(V.compare([{time_s:.5,angle_deg:10}],[{time_s:0,angle_deg:10},{time_s:1,angle_deg:10}],0,.1).paired_frames,0);
 assert.equal(S.longest([{frame:0,k:1},{frame:2,k:2},{frame:3,k:3}],"k").length,2);
+const frame={points:new Map([[23,[10,0,1]],[25,[0,0,1]],[27,[0,10,1]]])};
+const bound=C.uncertainty(frame,"left_knee_deg",.5,1);
+assert.ok(Math.abs(bound.lower_deg-(90-2*Math.asin(.2)*180/Math.PI))<1e-10);
+assert.equal(C.uncertainty(frame,"left_knee_deg",.5,0).lower_deg,90);
+assert.equal(C.uncertainty(frame,"left_knee_deg",.5,5).nondegeneracy_guaranteed,false);
+assert.equal(C.uncertainty({points:new Map()},"left_knee_deg",.5,1),null);
+for(let i=0;i<1000;i++){const points=new Map([...frame.points].map(([j,p],k)=>{const t=i*2.399+k*1.1;return [j,[p[0]+Math.cos(t),p[1]+Math.sin(t),1]]}));const a=C.angle(...[23,25,27].map(j=>points.get(j)));assert.ok(a>=bound.lower_deg-1e-9&&a<=bound.upper_deg+1e-9)}
 console.log("Vimo web core checks passed");
