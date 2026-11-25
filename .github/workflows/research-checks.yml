@@ -28,7 +28,11 @@ jobs:
           google-chrome --version
           for video in "使用图片/4f8f409a0db4f6a2072a851b1b4244fe.mp4" "使用图片/a442a73c389f4950d0a0d9806b0b28d9.mp4"; do
             ls -lh "$video"
-            ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,codec_tag_string,pix_fmt,width,height -of json "$video"
+            if command -v ffprobe >/dev/null 2>&1; then
+              ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,codec_tag_string,pix_fmt,width,height -of json "$video"
+            else
+              file "$video"
+            fi
           done
       - name: Verify real demo video extraction
         run: python research/test_browser.py
